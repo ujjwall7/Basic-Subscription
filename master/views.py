@@ -126,13 +126,13 @@ class CurrentSubscriptionView(APIView):
         active_subscription = UserSubscription.objects.filter(
             user=request.user,
             status="active"
-        ).order_by("-created_at").first()
+        ).order_by("-created_at")
 
         if not active_subscription:
             return Response({"detail": "No active subscription"}, status=status.HTTP_200_OK)
 
         return Response(
-            UserSubscriptionDetailSerializer(active_subscription).data,
+            UserSubscriptionDetailSerializer(active_subscription, many=True).data,
             status=status.HTTP_200_OK
         )
     
