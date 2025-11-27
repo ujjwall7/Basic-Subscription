@@ -6,14 +6,10 @@ from django.utils import timezone
 from datetime import timedelta
 
 from .models import Plan, UserSubscription
-from .serializers import (
-    PlanSerializer,
-    UserSerializer,
-    UserSubscriptionCreateSerializer,
-    UserSubscriptionDetailSerializer
-)
+from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.contrib.auth import authenticate
 
 # SIGNUP API
 class SignupView(APIView):
@@ -26,19 +22,19 @@ class SignupView(APIView):
         password = request.data.get("password")
 
         if not (username and email and password):
-            return Response({"error": "username, email, password required"}, status=400)
-
+            return Response({"error": "username, email, password required"}, status=status.HTTP_400_BAD_REQUEST)
+        
         if User.objects.filter(username=username).exists():
-            return Response({"error": "Username already taken"}, status=400)
+            return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "Email already registered"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = User.objects.create_user(username=username, email=email, password=password, first_name=name)
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=name
-        )
+        refresh = RefreshToken.for_user(user)
 
-        return Response({"message": "User created successfully"}, status=201)
+        return Response({"message":"User created"}, status=status.HTTP_201_CREATED)
 
 # LOGIN API (JWT)
 class LoginView(APIView):
@@ -48,14 +44,11 @@ class LoginView(APIView):
         username = request.data.get("username")
         password = request.data.get("password")
 
-        try:
-            user = User.objects.get(username=username)
-        except:
-            return Response({"error": "Invalid credentials"}, status=400)
+        user = authenticate(request, username=username, password=password)
 
-        if not user.check_password(password):
+        if not user:
             return Response({"error": "Invalid credentials"}, status=400)
-
+        
         refresh = RefreshToken.for_user(user)
 
         return Response({
@@ -120,20 +113,29 @@ class CurrentSubscriptionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        subs = UserSubscription.objects.filter(user=request.user).order_by("-created_at")
+        now = timezone.now()
 
-        if not subs.exists():
-            return Response({"detail": "No subscription found"}, status=200)
+        # Mark expired subscriptions
+        UserSubscription.objects.filter(
+            user=request.user,
+            status="active",
+            end_date__lt=now
+        ).update(status="expired")
 
+        # Fetch user's active subscription
+        active_subscription = UserSubscription.objects.filter(
+            user=request.user,
+            status="active"
+        ).order_by("-created_at").first()
 
-        # Expiry check
-        for sub in subs:
-            if sub.status == "active" and sub.end_date < timezone.now():
-                sub.status = "expired"
-                sub.save(update_fields=["status"])
+        if not active_subscription:
+            return Response({"detail": "No active subscription"}, status=status.HTTP_200_OK)
 
-        return Response(UserSubscriptionDetailSerializer(subs, many=True).data)
-
+        return Response(
+            UserSubscriptionDetailSerializer(active_subscription).data,
+            status=status.HTTP_200_OK
+        )
+    
 # WEBHOOK SIMULATION (NO AUTH)
 class PaymentWebhookView(APIView):
     permission_classes = [permissions.AllowAny]
