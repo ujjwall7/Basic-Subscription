@@ -72,18 +72,23 @@ class PlanListView(APIView):
         ser = PlanSerializer(plans, many=True)
         return Response(ser.data)
 
-# PLAN DETAIL API
+# PLAN DETAIL 
 class PlanDetailView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    def get(self, request, pk):
+    def get(self, request):
+        plan_id = request.query_params.get("id")
+
+        if not plan_id:
+            return Response({"error": "id query parameter is required"}, status=400)
+
         try:
-            plan = Plan.objects.get(id=pk)
+            plan = Plan.objects.get(id=plan_id)
         except Plan.DoesNotExist:
             return Response({"error": "Plan not found"}, status=404)
 
-        ser = PlanSerializer(plan)
-        return Response(ser.data)
+        serializer = PlanSerializer(plan)
+        return Response(serializer.data)
 
 # SUBSCRIBE API (POST)
 class SubscribeView(APIView):
@@ -104,7 +109,7 @@ class SubscribeView(APIView):
             plan=plan,
             start_date=start,
             end_date=end,
-            status="active"
+            status="pending"
         )
 
         out = UserSubscriptionDetailSerializer(subscription)
@@ -120,14 +125,14 @@ class CurrentSubscriptionView(APIView):
         if not subs.exists():
             return Response({"detail": "No subscription found"}, status=200)
 
-        sub = subs.first()
 
         # Expiry check
-        if sub.status == "active" and sub.end_date < timezone.now():
-            sub.status = "expired"
-            sub.save(update_fields=["status"])
+        for sub in subs:
+            if sub.status == "active" and sub.end_date < timezone.now():
+                sub.status = "expired"
+                sub.save(update_fields=["status"])
 
-        return Response(UserSubscriptionDetailSerializer(sub).data)
+        return Response(UserSubscriptionDetailSerializer(subs, many=True).data)
 
 # WEBHOOK SIMULATION (NO AUTH)
 class PaymentWebhookView(APIView):
@@ -140,33 +145,36 @@ class PaymentWebhookView(APIView):
         if not (email and plan_id):
             return Response({"error": "user_email and plan_id required"}, status=400)
 
-        try:
-            user = User.objects.get(email=email)
-            plan = Plan.objects.get(id=plan_id)
-        except:
+        user = User.objects.filter(email=email).first()
+        plan = Plan.objects.filter(id=plan_id).first()
+
+        if not user or not plan:
             return Response({"error": "Invalid user or plan"}, status=400)
 
-        start = timezone.now()
-        end = start + timedelta(days=plan.duration_days)
-
-        sub = UserSubscription.objects.create(
+        # Find pending subscription
+        pending_sub = UserSubscription.objects.filter(
             user=user,
             plan=plan,
-            start_date=start,
-            end_date=end,
-            status="active"
-        )
+            status="pending"
+        ).order_by("-created_at").first()
 
-        return Response(
-            {
-                "message": "Subscription activated",
-                "subscription": UserSubscriptionDetailSerializer(sub).data,
-            }
-        )
+        if not pending_sub:
+            return Response({"error": "No pending subscription found"}, status=404)
+
+        # ACTIVATE subscription
+        pending_sub.status = "active"
+        pending_sub.start_date = timezone.now()
+        pending_sub.end_date = pending_sub.start_date + timedelta(days=plan.duration_days)
+        pending_sub.save()
+
+        return Response({
+            "message": "Subscription activated",
+            "subscription": UserSubscriptionDetailSerializer(pending_sub).data
+        })
 
 # ADMIN — ALL USERS + SUBS
 class UsersWithSubscriptionView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         # SUPERUSER CHECK
@@ -199,7 +207,7 @@ class UsersWithSubscriptionView(APIView):
 
 # ADMIN — EXPIRED SUBSCRIPTIONS
 class ExpiredSubscriptionsView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         # SUPERUSER CHECK

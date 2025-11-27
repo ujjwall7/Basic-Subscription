@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "10389656-0753-499d-8e7f-f02b0a59246a",
+		"name": "Maxtron",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23043473"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "test@test.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "testing user",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "@12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{urls}}/auth/signup/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"auth",
+								"signup",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "@12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{urls}}/auth/login/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Plans",
+			"item": [
+				{
+					"name": "Plan List",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{urls}}/plans/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"plans",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscription",
+			"item": [
+				{
+					"name": "Get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MjE2Mjg5LCJpYXQiOjE3NjQyMTI2ODksImp0aSI6IjUxN2EzNzEyYjI1NjRhZTdiNjRkNWI4ODZiZmUxZDljIiwidXNlcl9pZCI6MX0.AcBTByZ3nXBBHz3H6CGhvzpXt2xGXIRLWkZn6z3Nhjw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{urls}}/subscription/current/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"subscription",
+								"current",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MjE2Mjg5LCJpYXQiOjE3NjQyMTI2ODksImp0aSI6IjUxN2EzNzEyYjI1NjRhZTdiNjRkNWI4ODZiZmUxZDljIiwidXNlcl9pZCI6MX0.AcBTByZ3nXBBHz3H6CGhvzpXt2xGXIRLWkZn6z3Nhjw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "plan_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{urls}}/subscription/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"subscription",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Webhook",
+			"item": [
+				{
+					"name": "Webhook",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MjE2Mjg5LCJpYXQiOjE3NjQyMTI2ODksImp0aSI6IjUxN2EzNzEyYjI1NjRhZTdiNjRkNWI4ODZiZmUxZDljIiwidXNlcl9pZCI6MX0.AcBTByZ3nXBBHz3H6CGhvzpXt2xGXIRLWkZn6z3Nhjw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user_email",
+									"value": "test@test.com",
+									"type": "text"
+								},
+								{
+									"key": "plan_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{urls}}/webhook/payment-success/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"webhook",
+								"payment-success",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin/Dashboard",
+			"item": [
+				{
+					"name": "Users With Subscription",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MjE2Mjg5LCJpYXQiOjE3NjQyMTI2ODksImp0aSI6IjUxN2EzNzEyYjI1NjRhZTdiNjRkNWI4ODZiZmUxZDljIiwidXNlcl9pZCI6MX0.AcBTByZ3nXBBHz3H6CGhvzpXt2xGXIRLWkZn6z3Nhjw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{urls}}/users-with-subscription/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"users-with-subscription",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expired Subscriptions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MjE2Mjg5LCJpYXQiOjE3NjQyMTI2ODksImp0aSI6IjUxN2EzNzEyYjI1NjRhZTdiNjRkNWI4ODZiZmUxZDljIiwidXNlcl9pZCI6MX0.AcBTByZ3nXBBHz3H6CGhvzpXt2xGXIRLWkZn6z3Nhjw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{urls}}/expired-subscriptions/",
+							"host": [
+								"{{urls}}"
+							],
+							"path": [
+								"expired-subscriptions",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "urls",
+			"value": ""
+		}
+	]
+}

@@ -19,6 +19,7 @@ class UserSubscription(models.Model):
     STATUS_CHOICES = (
         ("active", "Active"),
         ("expired", "Expired"),
+        ("pending", "Pending")
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
@@ -26,7 +27,7 @@ class UserSubscription(models.Model):
 
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="active")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
